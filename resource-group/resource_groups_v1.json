@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Resource_Group_Name": {
+      "type": "string"
+    },
+    "Location": {
+      "type": "string",
+      "allowedValues": [
+        "East Asia",
+        "Southeat Asia",
+        "West Europe",
+        "North Europe",
+        "West US 2",
+        "East US 2"
+      ]
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2018-05-01",
+      "location": "[parameters('Location')]",
+      "name": "[parameters('Resource_Group_Name')]",
+      "properties": {}
+    }
+  ],
+  "outputs": {}
+}
