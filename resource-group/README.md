@@ -1,3 +1,3 @@
 # azuredev
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+This resource is a subscription level resource and should be deployed only using the powershell script.
