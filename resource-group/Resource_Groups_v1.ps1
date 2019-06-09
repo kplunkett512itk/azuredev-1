@@ -1,15 +1,15 @@
 ﻿### Login to Azure and Set the Subscription
 Connect-AzureRmAccount
-Select-AzureRMSubscription -Subscription 48db8903-41b0-4a8d-9a07-62f6b7a7d515
+Select-AzureRMSubscription -Subscription {enter subscription id here}
 
 ### Define Deployment Variables
 {
-$location = 'West Europe'
-$resourceGroupNameNetwork = 'rg_6182012_net'
-$resourceGroupNameProduction = 'rg_6182012_prod'
-$resourceGroupNameStage = 'rg_6182012_stage'
-$resourceGroupNameTest = 'rg_6182012_test'
-$resourceGroupNameDev = 'rg_6182012_dev'
+$location = 'enter region here'
+$resourceGroupNameNetwork = 'enter rg here'
+$resourceGroupNameProduction = 'enter rg here'
+$resourceGroupNameStage = 'enter rg here'
+$resourceGroupNameTest = 'enter rg here'
+$resourceGroupNameDev = 'enter rg here'
 }
 
 ### Create Resource Group for Network
