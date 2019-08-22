@@ -1,0 +1,319 @@
+    {
+        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vnet_name":{
+                "type": "string"
+        },
+        "subnet_name":{
+            "type": "string"
+        },
+        "SubnetIPAddressPrefix":{
+            "type": "string"
+        },
+        "vm_size": {
+                "defaultValue": "Standard_B1ms",
+                "type": "string"
+        },
+        "adminPassword": {
+            "type":"securestring"
+        },
+        "site_code":{
+            "type": "string"
+        },
+        "site_prefix":{
+            "type":"string"
+        },      
+        "image_publisher":{
+            "defaultValue": "MicrosoftWindowsServer",
+            "type":"string"
+        },
+            "image_offer":{
+            "defaultValue": "WindowsServer",
+            "type": "string"
+        },
+        "image_sku":{
+            "defaultValue": "2012-R2-Datacenter",
+            "type":"string"
+            },
+        "vm_count":{
+            "defaultValue": 1,
+            "type": "int"
+        },
+        "vm_sequence_start":{
+            "defaultValue": 1,
+            "type": "int"
+        },
+        "data_disk_count":{
+            "defaultValue": 1,
+            "type": "int"
+        },
+        "environment":{
+            "type": "string",
+            "allowedValues": [
+                "dev",
+                "stage",
+                "test",
+                "prod"
+            ]
+        },
+        "loadbalancer_start_sequence":{
+            "defaultValue": 1,
+            "type": "int"
+        }
+        
+    },
+    "variables": {
+        "vnet_id":"[resourceId(variables('resource_group'),'Microsoft.Network/virtualNetworks',parameters('vnet_name'))]",
+        "subnet_id": "[resourceId(variables('resource_group'),'Microsoft.Network/virtualNetworks/subnets',parameters('vnet_name'),parameters('subnet_name'))]",
+
+        "SubnetAdd": "[split(parameters('SubnetIPAddressPrefix'),'/')[0]]",
+        "SubnetOctet": "[split(variables('SubnetAdd'),'.')]",
+        "OctetSuffix": "[concat(padleft(variables('SubnetOctet')[1],3,'0'),padleft(variables('SubnetOctet')[2],3,'0'))]",
+
+        "location": "[resourceGroup().location]",
+        "resource_group": "[resourcegroup().name]",
+        "vm_name_prefix":"[concat(parameters('site_code'),parameters('site_prefix'),'az','ilc')]",
+        "admin_username" : "ILS_admin",
+        "nic_suffix": "_nic",      
+
+        "availabilty_set_name":"[concat('AS_',parameters('site_code'),variables('OctetSuffix'))]",
+        "as_fault_domain_count": "2",
+        "as_update_domain_count": "3",
+        "storage_account_type": "Premium_LRS",
+        "data_disk_size": 64,      
+
+        "backup_vault_name": "BackupVault",
+        "backup_fabric": "Azure",
+        "backup_protection_container_suffix": "[concat('iaasvmcontainer;iaasvmcontainerv2;', resourceGroup().name, ';', variables('vm_name_prefix'))]",
+        "backup_protected_item": "[concat('vm;iaasvmcontainerv2;', resourceGroup().name, ';', variables('vm_name_prefix'))]",
+        "backup_policy_name": "DefaultPolicy",
+        "LoadBalancerName": "[concat('lb-std-', variables('OctetSuffix'),'-',parameters('environment'), '-', padleft(string(parameters('loadbalancer_start_sequence')),3,'0'))]",
+        "LoadBalancerID": "[resourceId('Microsoft.Network/loadBalancers',variables('LoadBalancerName'))]",
+        "publicIPAllocationMethod": "Static",
+        "PublicIPAddressName": "[concat(variables('LoadBalancerName'),'-PublicIP')]",
+        "InboundNATRuleName": "InboundRule",
+        "frontendIPConfigurationName": "LoadBalancerFrontEnd"
+    },
+
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2018-10-01",
+                "copy":{
+                    "name":"ixnic",
+                    "count":"[parameters('vm_count')]"
+                },
+                "name": "[concat(variables('vm_name_prefix'),padleft(string(copyIndex(parameters('vm_sequence_start'))),2,'0'),variables('nic_suffix'))]",
+                "location":"[variables('location')]",
+
+                "properties": {
+                    "ipConfigurations": [
+                        {
+                        "name": "ipconfig",                    
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id":"[variables('subnet_id')]"                            
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "loadBalancerBackendAddressPools":[
+                                {
+                                    "id": "[concat(variables('LoadBalancerID'), '/backendAddressPools/LoadBalancerBackend')]"
+                                }
+                            ]
+                        }
+                        }
+                    ],
+                    "enableAcceleratedNetworking": false,
+                    "enableIPForwarding": false,
+                    "primary": true,
+                    "virtualMachine": {
+                        "id": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vm_name_prefix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0')))]"
+                    }
+                },
+                "dependsOn": [
+                    "[concat('Microsoft.Network/loadBalancers/', variables('LoadBalancerName'))]"
+                ]
+            },
+            {
+                "type": "Microsoft.Compute/availabilitySets",
+                "apiVersion": "2018-10-01",            
+                "name": "[variables('availabilty_set_name')]",
+                "location":"[variables('location')]",
+                "sku": {
+                    "name": "Aligned"
+                },
+                "properties":{
+                    "platformFaultDomainCount": "[variables('as_fault_domain_count')]",
+                    "platformUpdateDomainCount": "[variables('as_update_domain_count')]"                
+                }
+
+            },
+            {
+                "type": "Microsoft.Network/publicIPAddresses",
+                "apiVersion": "2019-04-01",
+                "name": "[variables('PublicIPAddressName')]",
+                "location":"[variables('location')]",
+                "sku": {
+                    "name": "Standard",
+                    "tier": "Regional"
+                },
+                "properties": {
+                    "publicIPAllocationMethod": "[variables('publicIPAllocationMethod')]",
+                    "dnsSettings": {
+                        "domainNameLabel": "[variables('LoadBalancerName')]"
+                }
+                }
+            },
+            {
+                "type": "Microsoft.Network/loadBalancers",
+                "apiVersion": "2019-04-01",
+                "name": "[variables('LoadBalancerName')]",            
+                "location": "[variables('location')]",
+                "sku": {
+                    "name": "Standard",
+                    "tier": "Regional"
+                },        
+                "properties": {
+                    "frontendIPConfigurations": [
+                        {
+                            "name": "LoadBalancerFrontend",
+                            "properties": {
+                                "publicIPAddress": {
+                                    "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('PublicIPAddressName'))]"
+                                }   
+                            } 
+                        }
+                    ],
+                    "backendAddressPools": [
+                        {
+                            "name": "LoadBalancerBackend"
+                        }
+                    ],
+                    "loadBalancingRules": [],
+                    "probes":[
+                        {
+                            "name": "HealthProbe",
+                            "properties":{
+                                "protocol": "Tcp",                            
+                                "port": 80,
+                                "intervalInSeconds": 5,
+                                "numberOfProbes": 2
+                            }
+                        }
+                    ]                
+                },
+
+                "dependsOn": [
+                    "[concat('Microsoft.Network/publicIPAddresses/', variables('PublicIPAddressName'))]"
+                ]
+            },
+            
+            {
+                "type": "Microsoft.Compute/virtualMachines",
+                "apiVersion": "2018-10-01",
+                "copy":{
+                    "name": "ixvm",
+                    "count":"[parameters('vm_count')]"
+                },
+                "name":"[concat(variables('vm_name_prefix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0'))]",
+                "location":"[variables('location')]",
+                "properties":{
+                    "hardwareProfile":{
+                        "vmSize": "[parameters('vm_size')]"
+                    },            
+                
+                    "availabilitySet":{
+                        "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilty_set_name'))]"
+                    },
+
+                    "storageprofile":{
+                        "imageReference":{
+                            "publisher":"[parameters('image_publisher')]",
+                            "offer": "[parameters('image_offer')]",
+                            "sku": "[parameters('image_sku')]",
+                            "version": "latest"
+                        },
+                        "osdisk":{
+                            "osType": "[if(equals(parameters('image_publisher'),'MicrosoftWindowsServer'),'Windows','Linux')]",
+                            "name": "[concat(variables('vm_name_prefix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0'),'_osdisk001')]",
+                            "createOption": "FromImage",
+                            "caching": "ReadWrite",
+                            "managedDisk": {
+                                "storageAccountType": "[variables('storage_account_type')]"
+                            }
+                        },
+
+                        "copy":[
+                            {
+                                "name": "datadisks",
+                                "count":"[parameters('data_disk_count')]",                            
+                                "input":{
+                                        "lun": "[copyindex('datadisks')]",
+                                        "name": "[concat(variables('vm_name_prefix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0'),'_datadisk',padleft(copyindex('datadisks',1),2,'0'))]", 
+                                        "diskSizeGB":"[variables('data_disk_size')]",
+                                        "managedDisk": {
+                                            "storageAccountType": "[variables('storage_account_type')]"
+                                        },
+                                        "createOption":"Empty"
+                                }
+                                
+                            }
+                        ]
+                    },
+
+                    "osProfile":{
+                        "computerName": "[concat(variables('vm_name_prefix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0'))]",
+                        "adminUsername": "[variables('admin_username')]",
+                        "adminPassword": "[parameters('adminPassword')]",
+                        "windowsConfiguration":{
+                            "provisionVMAgent": true,
+                            "enableAutomaticUpdates": false
+                        },
+                        "allowExtensionOperations": true,
+                        "secrets": []
+                    },
+
+                    "networkProfile":{
+                        "networkInterfaces":[
+                            {
+                                "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('vm_name_prefix'),padleft(string(copyIndex(parameters('vm_sequence_start'))),2,'0'),variables('nic_suffix')))]"
+                            }
+                        ]
+                    }
+                },
+                
+                "dependsOn": [                
+                    "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilty_set_name'))]",
+                    "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('vm_name_prefix'),padleft(string(copyIndex(parameters('vm_sequence_start'))),2,'0'),variables('nic_suffix')))]"
+                    
+
+                ]
+            },
+
+            {
+                "type": "Microsoft.RecoveryServices/vaults/backupFabrics/protectionContainers/protectedItems",
+                "apiVersion": "2016-12-01",
+                "copy":{
+                    "name": "ixvm",
+                    "count":"[parameters('vm_count')]"
+                },
+                "name": "[concat(variables('backup_vault_name'), '/', variables('backup_fabric'), '/', variables('backup_protection_container_suffix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0'), '/', variables('backup_protected_item'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0'))]",
+                "properties": {
+                    "protectedItemType": "Microsoft.Compute/virtualMachines",
+                    "policyId": "[resourceId('Microsoft.RecoveryServices/vaults/backupPolicies', variables('backup_vault_name'), variables('backup_policy_name'))]",
+                    "sourceResourceId": "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vm_name_prefix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0')))]"
+                },
+
+                "dependsOn": [
+                    "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vm_name_prefix'),padleft(string(copyindex(parameters('vm_sequence_start'))),2,'0')))]"
+                ]
+
+            }
+        
+        ]
+    }
+            
+
