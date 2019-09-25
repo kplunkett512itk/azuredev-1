@@ -23,7 +23,7 @@
         "Standard_D4s_v3",
         "Standard_D8s_v3",
         "Standard_E8_v3",
-        "Standard_F8s_v3"
+        "Standard_F8s_v2"
       ],
       "defaultValue": "Standard_D1s_v3",
       "type": "string"
