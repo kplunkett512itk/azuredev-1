@@ -69,7 +69,7 @@
     "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-183-1-128_25')]",
     "vmStorageAccountContainerName": "vhds",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
-    "vm_avset": "as_6183001_dev_001",
+    "vm_avset": "as_6183001_prod_002",
     "location": "westeurope",
     "linuxConfiguration": {
       "disablePasswordAuthentication": true,
