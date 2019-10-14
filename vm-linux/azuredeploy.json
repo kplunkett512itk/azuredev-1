@@ -45,7 +45,7 @@
       },
       "storageAccountResourceGroup": {
         "type": "string",
-        "defaultValue": "rg_6183001_prod"
+        "defaultValue": "rg_6183001_dev"
       },
       "virtualNetworkName": {
         "type": "string",
