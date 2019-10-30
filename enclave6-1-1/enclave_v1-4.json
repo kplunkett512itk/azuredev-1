@@ -1,0 +1,227 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "Region_Number": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1,
+      "allowedValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ]
+    },
+    "Region_Name": {
+      "type": "string",
+      "allowedValues": [
+        "cchn",
+        "psgp",
+        "enld",
+        "musa"
+      ]
+    },
+    "Second_Octet": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 3
+    },
+    "Third_Octet": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 3
+    },
+    "Second_Octet_Name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3
+    },
+    "Third_Octet_Name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3
+    }
+
+  },
+  "variables": {
+    "networkSuffix": "_net",
+    "vnetMid": "azvnt",
+    "vnet_Name": "[concat(parameters('Region_Name'),parameters('Region_Number'),variables('vnetMid'),parameters('Second_Octet_Name'),parameters('Third_Octet_Name'))]",
+    "Forth_Octet_Prefix": "0/24",
+    "Forth_Octet_Subnet1": "0/27",
+    "Forth_Octet_Subnet2": "128/25",
+    "Dash": "-",
+    "Subnet2_Name_Suffix": "-128_25",
+    "resourceGroup": "[concat(string('rg_'),parameters('Region_Number'),parameters('Second_Octet_Name'),parameters('Third_Octet_Name'),variables('networkSuffix'))]",
+    "vnet-templatePrefix": "[concat(string('10.'),parameters('Second_Octet'),string('.'),parameters('Third_Octet'),string('.'),variables('Forth_Octet_Prefix'))]",
+    "vnet-templateSubnet1Name": "GatewaySubnet",
+    "vnet-templateSubnet1Prefix": "[concat(string('10.'),parameters('Second_Octet'),string('.'),parameters('Third_Octet'),string('.'),variables('Forth_Octet_Subnet1'))]",
+    "vnet-templateSubnet2Name": "[concat(string('sn_10-'),parameters('Second_Octet'),variables('Dash'),parameters('Third_Octet'),variables('Subnet2_Name_Suffix'))]",
+    "vnet-templateSubnet2Prefix": "[concat(string('10.'),parameters('Second_Octet'),string('.'),parameters('Third_Octet'),string('.'),variables('Forth_Octet_Subnet2'))]",
+    "templatestorageType": "Standard_LRS",
+    "storage_Name_Suffix": "genstdlrs000",
+    "storage_Account_Name": "[concat(string('t'),parameters('Region_Number'),parameters('Second_Octet_Name'),parameters('Third_Octet_Name'),variables('storage_Name_Suffix'))]",
+    "networkSecurityGroupName": "[concat(string('nsg_sn_10-'),parameters('Second_Octet'),variables('Dash'),parameters('Third_Octet'),string('-128_25'))]",
+    "asgProdWebName": "PROD_WEB",
+    "asgProdAppName": "PROD_APP",
+    "asgProdDbsName": "PROD_DBS",
+    "asgStageWebName": "STAGE_WEB",
+    "asgStageAppName": "STAGE_APP",
+    "asgStageDbsName": "STAGE_DBS",
+    "asgTestWebName": "TEST_WEB",
+    "asgTestAppName": "TEST_APP",
+    "asgTestDbsName": "TEST_DBS",
+    "asgDevWebName": "DEV_WEB",
+    "asgDevAppName": "DEV_APP",
+    "asgDevDbsName": "DEV_DBS",
+    "asgMgmt": "MGMT"
+
+
+
+  },
+  "resources": [
+    {
+      "name": "[variables('asgProdWebName')]",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {},
+      "tags": {
+        "displayName": "AsgProdWeb"
+      }
+    },
+    {
+      "name": "[variables('asgProdAppName')]",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {},
+      "tags": {
+        "displayName": "AsgProdApp"
+      }
+    },
+    {
+      "name": "[variables('asgProdDbsName')]",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {},
+      "tags": {
+        "displayName": "AsgProdDbs"
+      }
+    },
+    {
+      "name": "[variables('asgStageWebName')]",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {},
+      "tags": {
+        "displayName": "AsgStageWeb"
+      }
+    },
+    {
+      "name": "[variables('asgStageAppName')]",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {},
+      "tags": {
+        "displayName": "AsgStageApp"
+      }
+    },
+    {
+      "name": "[variables('asgStageDbsName')]",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "properties": {},
+      "tags": {
+        "displayName": "AsgStageDbs"
+      }
+    },
+    {
+      "name": "[variables('networkSecurityGroupName')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-09-01",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "NSG"
+      },
+      "properties": {
+        "securityRules": [
+          {
+            "name": "test_rule",
+            "properties": {
+              "description": "test rule description",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 101,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('vnet_Name')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/',variables('networkSecurityGroupName'))]"
+      ],
+      "tags": {
+        "displayName": "vNet"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnet-templatePrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vnet-templateSubnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('vnet-templateSubnet1Prefix')]"
+            }
+          },
+          {
+            "name": "[variables('vnet-templateSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "[variables('vnet-templateSubnet2Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "[variables('storage_Account_Name')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "[variables('templatestorageType')]"
+      },
+      "dependsOn": [],
+      "tags": {
+        "displayName": "Storage"
+      },
+      "kind": "Storage"
+    }
+
+  ]
+
+}
