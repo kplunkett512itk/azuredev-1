@@ -89,9 +89,6 @@
       "type": "Microsoft.Network/virtualNetworks",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/',variables('networkSecurityGroupName'))]"
-      ],
       "tags": {
         "displayName": "vNet"
       },
