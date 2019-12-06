@@ -43,8 +43,8 @@
  
   },
   "variables": {
-    "vmImagePublisher": "MicrosoftSQLServer",
-    "vmImageOffer": "SQL2016SP1-WS2016",
+    "vmImagePublisher": "MicrosoftWindowsServer",
+    "vmImageOffer": "WindowsServer",
     "vmOSDiskName": "[concat(parameters('vmName'), '_osdisk')]",
     "vmVmSize": "Standard_DS12_v2",
     "vmVnetID": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
