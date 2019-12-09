@@ -26,19 +26,19 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "t6183000genstdlrs001"
+      "defaultValue": "t6182008genstdlrs001"
     },
     "storageAccountResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6183000_prod"
+      "defaultValue": "rg_6182008_prod"
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "enld6azvnt183000"
+      "defaultValue": "enld6azvnt182008"
     },
     "virtualNetworkResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6183000_net"
+      "defaultValue": "rg_6182008_net"
     }
  
   },
@@ -51,7 +51,7 @@
     "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-183-0-128_25')]",
     "vmStorageAccountContainerName": "vhds",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
-    "vm_avset": "as_6183000_prod_003",
+    "vm_avset": "as_6182008_prod_001",
     "location":  "westeurope"
 
   },
