@@ -1,2 +1,3 @@
-# azuredev
-Development
+# Deploy Application Segment
+
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
