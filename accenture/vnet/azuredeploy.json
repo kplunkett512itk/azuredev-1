@@ -1,0 +1,86 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Region_Name": {
+            "allowedValues": [
+                "cchn",
+                "psgp",
+                "enld",
+                "musa"
+            ],
+            "type": "String"
+        }
+    },
+    "variables": {
+        "networkSuffix": "_net",
+        "vnetMid": "azvnt",
+        "resource_group": "[resourcegroup().name]",
+        "Region_Number": "[substring(variables('resource_group'), 3, 1)]",
+        "Second_Octet_text": "[substring(variables('resource_group'), 4, 3)]",
+        "Third_Octet_text": "[substring(variables('resource_group'), 7, 3)]",
+        "Second_Octet": "[int(variables('Second_Octet_text'))]",
+        "Third_Octet": "[int(variables('Third_Octet_text'))]",
+        "vnet_Name": "[concat(parameters('Region_Name'),variables('Region_Number'),variables('vnetMid'),padleft(string(variables('Second_Octet')),3,'0'),padleft(string(variables('Third_Octet')),3,'0'))]",
+        "Forth_Octet_Prefix": "0/24",
+        "Forth_Octet_Subnet1": "0/27",
+        "Forth_Octet_Subnet2": "32/28",
+        "Forth_Octet_Subnet3": "128/25",
+        "Dash": "-",
+        "Subnet2_Name_Suffix": "-32_28",
+        "Subnet3_Name_Suffix": "-128_25",
+        "resourceGroup": "[concat(string('rg_'),variables('Region_Number'),padleft(string(variables('Second_Octet')),3,'0'),padleft(string(variables('Third_Octet')),3,'0'),variables('networkSuffix'))]",
+        "vnet-templatePrefix": "[concat(string('10.'),variables('Second_Octet'),string('.'),variables('Third_Octet'),string('.'),variables('Forth_Octet_Prefix'))]",
+        "vnet-templateSubnet1Name": "GatewaySubnet",
+        "vnet-templateSubnet1Prefix": "[concat(string('10.'),variables('Second_Octet'),string('.'),variables('Third_Octet'),string('.'),variables('Forth_Octet_Subnet1'))]",
+        "vnet-templateSubnet2Name": "[concat(string('sn_10-'),variables('Second_Octet'),variables('Dash'),variables('Third_Octet'),variables('Subnet2_Name_Suffix'))]",
+        "vnet-templateSubnet2Prefix": "[concat(string('10.'),variables('Second_Octet'),string('.'),variables('Third_Octet'),string('.'),variables('Forth_Octet_Subnet2'))]",
+        "vnet-templateSubnet3Name": "[concat(string('sn_10-'),variables('Second_Octet'),variables('Dash'),variables('Third_Octet'),variables('Subnet3_Name_Suffix'))]",
+        "vnet-templateSubnet3Prefix": "[concat(string('10.'),variables('Second_Octet'),string('.'),variables('Third_Octet'),string('.'),variables('Forth_Octet_Subnet3'))]",
+        "templatestorageType": "Standard_LRS",
+        "storage_Name_Suffix": "genstdlrs000",
+        "storage_Account_Name": "[concat(string('t'),variables('Region_Number'),padleft(string(variables('Second_Octet')),3,'0'),padleft(string(variables('Third_Octet')),3,'0'),variables('storage_Name_Suffix'))]",
+        "networkSecurityGroupName": "[concat(string('nsg_sn_10-'),variables('Second_Octet'),variables('Dash'),variables('Third_Octet'),string('-128_25'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-09-01",
+            "name": "[variables('vnet_Name')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "vNet"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('vnet-templatePrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('vnet-templateSubnet1Name')]",
+                        "properties": {
+                            "addressPrefix": "[variables('vnet-templateSubnet1Prefix')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('vnet-templateSubnet2Name')]",
+                        "properties": {
+                            "addressPrefix": "[variables('vnet-templateSubnet2Prefix')]"
+                        }
+                    },
+                    {
+                        "name": "[variables('vnet-templateSubnet3Name')]",
+                        "properties": {
+                            "addressPrefix": "[variables('vnet-templateSubnet3Prefix')]",
+                                          "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+              }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
