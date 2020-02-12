@@ -46,7 +46,7 @@
     "vmImagePublisher": "MicrosoftWindowsServer",
     "vmImageOffer": "WindowsServer",
     "vmOSDiskName": "[concat(parameters('vmName'), '_osdisk')]",
-    "vmVmSize": "Standard_D4S_v3",
+    "vmVmSize": "Standard_DS12_v2",
     "vmVnetID": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
     "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-183-0-128_25')]",
     "vmStorageAccountContainerName": "vhds",
