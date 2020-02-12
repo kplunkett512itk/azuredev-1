@@ -26,19 +26,19 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "t6183001genstdlrs001"
+      "defaultValue": "t6183000genstdlrs001"
     },
     "storageAccountResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6183001_prod"
+      "defaultValue": "rg_6183000_prod"
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "enld6azvnt183001"
+      "defaultValue": "enld6azvnt183000"
     },
     "virtualNetworkResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6183001_net"
+      "defaultValue": "rg_6183000_net"
     }
  
   },
@@ -48,10 +48,10 @@
     "vmOSDiskName": "[concat(parameters('vmName'), '_osdisk')]",
     "vmVmSize": "Standard_DS3_v2",
     "vmVnetID": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-    "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-183-1-128_25')]",
+    "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-183-0-128_25')]",
     "vmStorageAccountContainerName": "vhds",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
-    "vm_avset": "as_6183001_prod_999",
+    "vm_avset": "as_6183000_prod_001",
     "location":  "westeurope"
 
   },
