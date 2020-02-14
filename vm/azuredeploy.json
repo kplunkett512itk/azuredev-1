@@ -26,19 +26,19 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "t6183000genstdlrs001"
+      "defaultValue": "t1214009genstdlrs001"
     },
     "storageAccountResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6183000_prod"
+      "defaultValue": "rg_1214009_prod"
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "enld6azvnt183000"
+      "defaultValue": "musa1azvnt214009"
     },
     "virtualNetworkResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6183000_net"
+      "defaultValue": "rg_1214009_net"
     }
  
   },
@@ -46,20 +46,20 @@
     "vmImagePublisher": "MicrosoftWindowsServer",
     "vmImageOffer": "WindowsServer",
     "vmOSDiskName": "[concat(parameters('vmName'), '_osdisk')]",
-    "vmVmSize": "Standard_DS12_v2",
+    "vmVmSize": "Standard_D4S_v3",
     "vmVnetID": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-    "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-183-0-128_25')]",
+    "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-214-9-224_27')]",
     "vmStorageAccountContainerName": "vhds",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
-    "vm_avset": "as_6183000_prod_004",
-    "location":  "westeurope"
+    "vm_avset": "as_1214009_prod_099",
+    "location":  "southcentralus"
 
   },
   "resources": [
     {
       "name": "[variables('vmNicName')]",
       "type": "Microsoft.Network/networkInterfaces",
-      "location": "westeurope",
+      "location": "southcentralus",
       "apiVersion": "2016-03-30",
       "dependsOn": [],
       "tags": {
@@ -93,7 +93,7 @@
     {
       "name": "[parameters('vmName')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "location": "westeurope",
+      "location": "southcentralus",
       "apiVersion": "2017-03-30",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
