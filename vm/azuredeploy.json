@@ -26,7 +26,7 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "t6183000genstdlrs001"
+      "defaultValue": "t6183000genstdlrs004"
     },
     "storageAccountResourceGroup": {
       "type": "string",
