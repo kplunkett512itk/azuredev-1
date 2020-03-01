@@ -51,7 +51,7 @@
     "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_172-18-211-0_26')]",
     "vmStorageAccountContainerName": "vhds",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
-    "vm_avset": "as_6172018211_prod_001",
+    "vm_avset": "as_6172018211_prod_000",
     "location":  "westeurope"
 
   },
