@@ -89,7 +89,7 @@
     {
       "name": "[parameters('vmName')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "location": "eastasia",
+      "location": "westeurope",
       "apiVersion": "2017-03-30",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
