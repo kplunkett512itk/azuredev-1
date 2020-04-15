@@ -1,0 +1,138 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vmAdminUserName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vmAdminPassword": {
+      "type": "securestring"
+    },
+    "vmWindowsOSVersion": {
+      "allowedValues": [
+        "2012-R2-Datacenter"
+      ],
+      "defaultValue": "2012-R2-Datacenter",
+      "type": "string"
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "t6182008genstdlrs000"
+    },
+    "storageAccountResourceGroup": {
+      "type": "string",
+      "defaultValue": "rg_6172018211_prod"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "enld6azvnt182008"
+    },
+    "virtualNetworkResourceGroup": {
+      "type": "string",
+      "defaultValue": "rg_6182008_net"
+    }
+ 
+  },
+  "variables": {
+    "vmImagePublisher": "MicrosoftWindowsServer",
+    "vmImageOffer": "WindowsServer",
+    "vmOSDiskName": "[concat(parameters('vmName'), '_osdisk')]",
+    "vmVmSize": "Standard_D2_v2",
+    "vmVnetID": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-182-8-0_25')]",
+    "vmStorageAccountContainerName": "vhds",
+    "vmNicName": "[concat(parameters('vmName'), '-nic')]",
+    "vm_avset": "as_6182008_prod_001",
+    "location": "westeurope"
+
+  },
+  "resources": [
+    {
+      "name": "[variables('vmNicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "location": "westeurope",
+      "apiVersion": "2016-03-30",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "vbNic"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('vmSubnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('vm_avset')]",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[variables('location')]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 5,
+        "managed": true
+      }
+    },
+    {
+      "name": "[parameters('vmName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "eastasia",
+      "apiVersion": "2017-03-30",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
+      ],
+      "tags": {
+        "displayName": "vb"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmVmSize')]"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('vm_avset'))]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('vmAdminUserName')]",
+          "adminPassword": "[parameters('vmAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('vmImagePublisher')]",
+            "offer": "[variables('vmImageOffer')]",
+            "sku": "[parameters('vmWindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "name": "[variables('vmOSDiskName')]",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+   
+}
