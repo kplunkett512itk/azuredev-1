@@ -44,7 +44,7 @@
   },
   "variables": {
     "location": "westeurope",
-    "vm_avset": "as_6182010_prod_004",
+    "vm_avset": "as_6182010_prod_005",
     "vmImageOffer": "WindowsServer",
     "vmImagePublisher": "MicrosoftWindowsServer",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
