@@ -26,31 +26,31 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "t6182010genstdlrs001"
+      "defaultValue": "t3082008genstdlrs001"
     },
     "storageAccountResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6182010_prod"
+      "defaultValue": "rg_3082008_prod"
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "enld6azvnt182010"
+      "defaultValue": "cchn3azvnt082008"
     },
     "virtualNetworkResourceGroup": {
       "type": "string",
-      "defaultValue": "rg_6182010_net"
+      "defaultValue": "rg_3082008_net"
     }
  
   },
   "variables": {
-    "location": "westeurope",
-    "vm_avset": "as_6182010_prod_009",
+    "location": "eastasia",
+    "vm_avset": "as_3082008_prod_001",
     "vmImageOffer": "WindowsServer",
     "vmImagePublisher": "MicrosoftWindowsServer",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
     "vmOSDiskName": "[concat(parameters('vmName'), '_osdisk')]",
     "vmStorageAccountContainerName": "vhds",
-    "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-182-10-128_25')]",
+    "vmSubnetRef": "[concat(variables('vmVnetID'), '/subnets/', 'sn_10-82-8-128_25')]",
     "vmVmSize": "Standard_D2_v2",
     "vmVnetID": "[resourceId(parameters('virtualNetworkResourceGroup'), 'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
   },
@@ -62,7 +62,7 @@
       "apiVersion": "2016-03-30",
       "dependsOn": [],
       "tags": {
-        "displayName": "vbNic"
+        "Application": ""
       },
       "properties": {
         "ipConfigurations": [
