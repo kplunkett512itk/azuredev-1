@@ -19,7 +19,8 @@
         "2012-Datacenter",
         "2012-R2-Datacenter",
         "2016-Datacenter",
-        "2019-Datacenter"
+        "2019-Datacenter",
+        "Windows-Server-Technical-Preview"
       ],
       "defaultValue": "2012-R2-Datacenter",
       "type": "string"
@@ -44,7 +45,7 @@
   },
   "variables": {
     "location": "eastasia",
-    "vm_avset": "as_3082008_prod_002",
+    "vm_avset": "as_3082008_prod_001",
     "vmImageOffer": "WindowsServer",
     "vmImagePublisher": "MicrosoftWindowsServer",
     "vmNicName": "[concat(parameters('vmName'), '-nic')]",
