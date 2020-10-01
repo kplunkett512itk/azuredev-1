@@ -1,3 +1,3 @@
 # azuredev
 Development
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+<img src="https://aka.ms/deploytoazurebutton"/>
